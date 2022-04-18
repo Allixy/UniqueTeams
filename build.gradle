@@ -1,0 +1,60 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
+}
+
+group 'ga.uniquecoding'
+version '0.0.1'
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'codemc-repo'
+        url = 'https://repo.codemc.io/repository/maven-snapshots/'
+    }
+
+    maven {
+        name = 'codemc-repo'
+        url = 'https://repo.codemc.io/repository/maven-public/'
+    }
+
+    maven {
+        name = 'codemc-repo'
+        url = 'https://repo.codemc.io/repository/maven-snapshots/'
+    }
+
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+    maven { url 'https://papermc.io/repo/repository/maven-public/' }
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://repo.kryptonmc.org/releases' }
+    mavenLocal()
+}
+
+dependencies {
+    implementation group: 'dev.jorel.CommandAPI', name:'commandapi-shade', version:'6.5.4'
+    compileOnly group: 'io.papermc.paper', name: 'paper-api', version: '1.18.2-R0.1-SNAPSHOT'
+    compileOnly group: 'me.neznamy', name: 'tab-api', version: '3.0.2'
+    compileOnly group: 'dev.jorel', name: 'commandapi-annotations', version: '7.0.0'
+    compileOnly group: 'me.clip', name: 'placeholderapi', version: '2.11.1'
+    annotationProcessor group: 'dev.jorel', name: 'commandapi-annotations', version: '7.0.0'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from (sourceSets.main.resources.srcDirs) {
+        include '**/*.yml'
+        filter ReplaceTokens, tokens: ["version": version]
+    }
+}
+
+shadowJar {
+    relocate "dev.jorel.commandapi", "ga.uniquecoding.commandapi"
+}

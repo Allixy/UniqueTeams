@@ -1,0 +1,6 @@
+name: UniqueTeams
+version: '${version}'
+main: ga.uniquecoding.uniqueteams.UniqueTeams
+api-version: 1.16
+authors: [ Allixy ]
+description: A teams plugin.
