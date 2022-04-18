@@ -39,6 +39,9 @@ public class TeamManager {
             players.remove(player.getUniqueId());
 
             Team team = teams.get(owner.getName());
+
+            if (team == null) return;
+
             String rank = team.getRank(player);
 
             team.removeMember(player);
@@ -65,6 +68,14 @@ public class TeamManager {
                 invitedPlayers.remove(uuid);
             }
         }.runTaskLaterAsynchronously(plugin, 60 * 20L);
+    }
+
+    public void removePlayerInvite(Player owner, UUID uuid) {
+        Team team = getTeam(owner);
+
+        if (invitedPlayers.get(uuid) == team) {
+            invitedPlayers.remove(uuid);
+        }
     }
 
     public boolean isInvited(Player owner, UUID uuid) {

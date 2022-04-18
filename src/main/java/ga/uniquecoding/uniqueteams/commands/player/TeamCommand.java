@@ -41,14 +41,17 @@ public class TeamCommand {
                     }
 
                     if (!teamManager.isInTeam(player)) {
+                        if (team.getMembers().size() == 3) {
+                            player.sendMessage(HexUtils.colorify("&cYou cannot have more than 3 members in your team!"));
+                        }
                         teamManager.createTeam(player);
                         player.sendMessage(HexUtils.colorify("&aCreated a team!"));
                         player.sendMessage(HexUtils.colorify("&6Sent a team invite to " + target.getName() + "!"));
-                        target.sendMessage(HexUtils.colorify("&6You've been invited to join " + owner.getName() + "'s team! /team accept " + teamManager.getTeam(player).toString()));
+                        target.sendMessage(HexUtils.colorify("&6You've been invited to join " + player.getName()) + "'s team! /team accept " + owner.getName());
                         teamManager.invitePlayer(player, target.getUniqueId());
                     } else {
                         player.sendMessage(HexUtils.colorify("&6Sent a team invite to " + target.getName() + "!"));
-                        target.sendMessage(HexUtils.colorify("&6You've been invited to join " + owner.getName() + "'s team! /team accept " + teamManager.getTeam(player).toString()));
+                        target.sendMessage(HexUtils.colorify("&6You've been invited to join " + player.getName() + "'s team! /team accept " + owner.getName()));
                         teamManager.invitePlayer(player, target.getUniqueId());
                     }
                 });
@@ -62,6 +65,11 @@ public class TeamCommand {
                     if (owner == null) return;
 
                     if (teamManager.isInvited(owner, player.getUniqueId())) {
+                        if (teamManager.getTeam(owner).getMembers().size() == 3) {
+                            player.sendMessage(HexUtils.colorify("&cYou cannot have more than 3 members in your team!"));
+                            teamManager.removePlayerInvite(owner, player.getUniqueId());
+                            return;
+                        }
                         teamManager.addPlayer(owner, player, "member");
                         player.sendMessage(HexUtils.colorify("&6Joined " + owner.getName() + "'s team!"));
 
@@ -95,6 +103,19 @@ public class TeamCommand {
                             target.sendMessage(HexUtils.colorify("&6" + player.getName() + " left the team!"));
                         });
                     }
+                });
+
+        CommandAPICommand teamList = new CommandAPICommand("list")
+                .executesPlayer((player, args) -> {
+                    TeamManager teamManager = UniqueTeams.plugin.getManager();
+                    Team team = teamManager.getTeam(player);
+
+                    if (team == null) return;
+
+                    if (teamManager.isInTeam(player)) {
+                        player.sendMessage(HexUtils.colorify("&aTeam list:&e\n" + team.getMembers().toString()));
+                    }
+
                 });
 
         new CommandAPICommand("team")

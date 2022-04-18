@@ -3,7 +3,6 @@ package ga.uniquecoding.uniqueteams.listeners;
 import ga.uniquecoding.uniqueteams.Team;
 import ga.uniquecoding.uniqueteams.UniqueTeams;
 import ga.uniquecoding.uniqueteams.managers.TeamManager;
-import ga.uniquecoding.uniqueteams.utils.HexUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,7 +22,7 @@ public class EntityDamageListener implements Listener {
                 TeamManager teamManager = UniqueTeams.plugin.getManager();
                 Team team = teamManager.getTeam(player);
 
-                if (team.isInTeam(target)) {
+                if (team.getMembers().contains(target.getUniqueId())) {
                     e.setCancelled(true);
                 }
             }
