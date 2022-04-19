@@ -10,13 +10,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class EntityDamageListener implements Listener {
+    private TeamManager teamManager;
+
+    public EntityDamageListener(TeamManager manager){
+        this.teamManager = manager;
+    }
+
+
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e) {
         Entity target = e.getEntity();
 
         if (target instanceof Player) {
             if (e.getDamager() instanceof Player damager) {
-                TeamManager teamManager = UniqueTeams.plugin.getManager();
                 Team team = teamManager.getTeam(damager);
 
                 if (team == null) return;

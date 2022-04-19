@@ -39,7 +39,7 @@ public class PlaceholderHandler extends PlaceholderExpansion {
 
             if (team == null) return "";
 
-            String hex = "&" + team.getHex() + " Ⓣ";
+            String hex = "&" + team.getHex() + "Ⓣ";
 
             return hex;
         }

@@ -7,16 +7,12 @@ import ga.uniquecoding.uniqueteams.handlers.PlaceholderHandler;
 import ga.uniquecoding.uniqueteams.listeners.EntityDamageListener;
 import ga.uniquecoding.uniqueteams.managers.TeamManager;
 import org.bukkit.Server;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 
 public final class UniqueTeams extends JavaPlugin {
 
-    private File file;
-    private FileConfiguration langFile;
     public TeamManager manager;
     private PlaceholderHandler placeholderHandler;
     public static UniqueTeams plugin;
@@ -42,7 +38,7 @@ public final class UniqueTeams extends JavaPlugin {
         CommandAPI.onEnable(this);
         placeholderHandler.register();
 
-        pluginManager.registerEvents(new EntityDamageListener(), this);
+        pluginManager.registerEvents(new EntityDamageListener(manager), this);
     }
 
     @Override

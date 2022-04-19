@@ -2,6 +2,7 @@ package ga.uniquecoding.uniqueteams.managers;
 
 import ga.uniquecoding.uniqueteams.Team;
 import ga.uniquecoding.uniqueteams.utils.HexUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -62,12 +63,10 @@ public class TeamManager {
 
         invitedPlayers.put(uuid, team);
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                invitedPlayers.remove(uuid);
-            }
-        }.runTaskLaterAsynchronously(plugin, 60 * 20L);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, (runnable) -> {
+            invitedPlayers.remove(uuid);
+        }, 60*20L);
+
     }
 
     public void removePlayerInvite(Player owner, UUID uuid) {
