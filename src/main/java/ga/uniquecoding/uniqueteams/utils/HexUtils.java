@@ -6,7 +6,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.md_5.bungee.api.ChatColor;
-import org.apache.commons.lang.RandomStringUtils;
 
 public final class HexUtils {
 

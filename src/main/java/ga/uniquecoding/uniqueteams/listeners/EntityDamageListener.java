@@ -1,7 +1,6 @@
 package ga.uniquecoding.uniqueteams.listeners;
 
 import ga.uniquecoding.uniqueteams.Team;
-import ga.uniquecoding.uniqueteams.UniqueTeams;
 import ga.uniquecoding.uniqueteams.managers.TeamManager;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -14,7 +13,6 @@ public class EntityDamageListener implements Listener {
     public EntityDamageListener(TeamManager manager){
         this.teamManager = manager;
     }
-
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e) {

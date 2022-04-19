@@ -4,7 +4,6 @@ import ga.uniquecoding.uniqueteams.Team;
 import ga.uniquecoding.uniqueteams.utils.HexUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 

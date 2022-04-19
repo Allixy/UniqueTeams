@@ -36,7 +36,7 @@ repositories {
 
 dependencies {
     implementation group: 'dev.jorel.CommandAPI', name:'commandapi-shade', version:'6.5.4'
-    compileOnly group: 'io.papermc.paper', name: 'paper-api', version: '1.18.2-R0.1-SNAPSHOT'
+    compileOnly group: 'com.destroystokyo.paper', name: 'paper-api', version: '1.16.5-R0.1-SNAPSHOT'
     //compileOnly group: 'me.neznamy', name: 'tab-api', version: '3.0.2'
     compileOnly group: 'dev.jorel', name: 'commandapi-annotations', version: '7.0.0'
     compileOnly group: 'me.clip', name: 'placeholderapi', version: '2.11.1'
