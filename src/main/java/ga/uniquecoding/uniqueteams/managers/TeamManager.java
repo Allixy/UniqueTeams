@@ -81,7 +81,11 @@ public class TeamManager {
     public boolean isInvited(Player owner, UUID uuid) {
         Team team = teams.get(owner.getName());
 
-        return invitedPlayers.get(uuid).equals(team);
+        if (invitedPlayers.get(uuid) == null) {
+            return false;
+        } else {
+            return invitedPlayers.get(uuid).equals(team);
+        }
     }
 
     public HashMap<UUID, Team> getPlayers() {

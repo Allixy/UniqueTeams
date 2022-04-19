@@ -7,24 +7,21 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class EntityDamageListener implements Listener {
     @EventHandler
-    public void onHit(EntityDamageEvent e) {
-        Entity entity = e.getEntity();
-        EntityDamageEvent.DamageCause cause = e.getCause();
+    public void onDamage(EntityDamageByEntityEvent e) {
+        Entity target = e.getEntity();
 
-        if (entity instanceof Player target) {
-            if (entity.getLastDamageCause() == null) return;
-            Entity lDmgEntity = entity.getLastDamageCause().getEntity();
-            if (lDmgEntity instanceof Player player) {
+        if (target instanceof Player) {
+            if (e.getDamager() instanceof Player damager) {
                 TeamManager teamManager = UniqueTeams.plugin.getManager();
-                Team team = teamManager.getTeam(player);
+                Team team = teamManager.getTeam(damager);
 
-                if (team.getMembers().contains(target.getUniqueId())) {
-                    e.setCancelled(true);
-                }
+                if (team == null) return;
+
+                if (team.getMembers().contains(target.getUniqueId())) e.setCancelled(true);
             }
         }
     }
