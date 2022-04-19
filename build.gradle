@@ -30,14 +30,14 @@ repositories {
     maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
     maven { url 'https://papermc.io/repo/repository/maven-public/' }
     maven { url 'https://jitpack.io' }
-    maven { url 'https://repo.kryptonmc.org/releases' }
+    //maven { url 'https://repo.kryptonmc.org/releases' }
     mavenLocal()
 }
 
 dependencies {
     implementation group: 'dev.jorel.CommandAPI', name:'commandapi-shade', version:'6.5.4'
     compileOnly group: 'io.papermc.paper', name: 'paper-api', version: '1.18.2-R0.1-SNAPSHOT'
-    compileOnly group: 'me.neznamy', name: 'tab-api', version: '3.0.2'
+    //compileOnly group: 'me.neznamy', name: 'tab-api', version: '3.0.2'
     compileOnly group: 'dev.jorel', name: 'commandapi-annotations', version: '7.0.0'
     compileOnly group: 'me.clip', name: 'placeholderapi', version: '2.11.1'
     annotationProcessor group: 'dev.jorel', name: 'commandapi-annotations', version: '7.0.0'

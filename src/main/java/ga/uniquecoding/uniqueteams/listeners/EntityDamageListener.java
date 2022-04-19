@@ -18,21 +18,20 @@ public class EntityDamageListener implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e) {
+
         Entity target = e.getEntity();
 
         if (target instanceof Player) {
             if (e.getDamager() instanceof Player damager) {
                 Team team = teamManager.getTeam(damager);
-
                 if (team == null) return;
                 if (team.getMembers().contains(target.getUniqueId())) e.setCancelled(true);
-            }
-        }else if(target instanceof Projectile projectile){
-            if(projectile.getShooter() instanceof Player damager){
-                Team team = teamManager.getTeam(damager);
-
-                if (team == null) return;
-                if (team.getMembers().contains(target.getUniqueId())) e.setCancelled(true);
+            }else if(e.getDamager() instanceof Projectile projectile){
+                if(projectile.getShooter() instanceof Player damager){
+                    Team team = teamManager.getTeam(damager);
+                    if (team == null) return;
+                    if (team.getMembers().contains(target.getUniqueId())) e.setCancelled(true);
+                }
             }
         }
     }
