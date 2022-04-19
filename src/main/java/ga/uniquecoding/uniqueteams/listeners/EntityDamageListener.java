@@ -3,10 +3,7 @@ package ga.uniquecoding.uniqueteams.listeners;
 import ga.uniquecoding.uniqueteams.Team;
 import ga.uniquecoding.uniqueteams.UniqueTeams;
 import ga.uniquecoding.uniqueteams.managers.TeamManager;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Trident;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -30,15 +27,8 @@ public class EntityDamageListener implements Listener {
                 if (team == null) return;
                 if (team.getMembers().contains(target.getUniqueId())) e.setCancelled(true);
             }
-        }else if(target instanceof Arrow arrow){
-            if(arrow.getShooter() instanceof Player damager){
-                Team team = teamManager.getTeam(damager);
-
-                if (team == null) return;
-                if (team.getMembers().contains(target.getUniqueId())) e.setCancelled(true);
-            }
-        }else if(target instanceof Trident trident){
-            if(trident.getShooter() instanceof Player damager){
+        }else if(target instanceof Projectile projectile){
+            if(projectile.getShooter() instanceof Player damager){
                 Team team = teamManager.getTeam(damager);
 
                 if (team == null) return;
