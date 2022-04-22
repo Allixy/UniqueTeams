@@ -22,7 +22,6 @@ public final class UniqueTeams extends JavaPlugin {
     public void onLoad() {
         CommandAPI.onLoad(new CommandAPIConfig());
         CommandAPI.unregister("team");
-        new TeamCommand();
     }
 
     @Override
@@ -37,6 +36,8 @@ public final class UniqueTeams extends JavaPlugin {
 
         CommandAPI.onEnable(this);
         placeholderHandler.register();
+
+        new TeamCommand(this, manager);
 
         pluginManager.registerEvents(new EntityDamageListener(manager), this);
     }

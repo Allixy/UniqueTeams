@@ -35,12 +35,10 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'dev.jorel.CommandAPI', name:'commandapi-shade', version:'6.5.4'
+    implementation group: 'dev.jorel.CommandAPI', name:'commandapi-shade', version:'6.4.0'
     compileOnly group: 'com.destroystokyo.paper', name: 'paper-api', version: '1.16.5-R0.1-SNAPSHOT'
     //compileOnly group: 'me.neznamy', name: 'tab-api', version: '3.0.2'
-    compileOnly group: 'dev.jorel', name: 'commandapi-annotations', version: '7.0.0'
     compileOnly group: 'me.clip', name: 'placeholderapi', version: '2.11.1'
-    annotationProcessor group: 'dev.jorel', name: 'commandapi-annotations', version: '7.0.0'
 }
 
 tasks.withType(JavaCompile) {

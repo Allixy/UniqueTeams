@@ -9,23 +9,19 @@ import ga.uniquecoding.uniqueteams.utils.HexUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class TeamCommand {
 
-    public TeamCommand() {
+    public TeamCommand(UniqueTeams plugin, TeamManager manager) {
 
         CommandAPICommand teamCreate = new CommandAPICommand("create")
                 .executesPlayer((player, args) -> {
-                    TeamManager teamManager = UniqueTeams.plugin.getManager();
-
-                    if (!teamManager.isInTeam(player)) {
-                        teamManager.createTeam(player);
-                        player.sendMessage(HexUtils.colorify("&aSuccessfully created a new team!"));
+                    if (!manager.isInTeam(player)) {
+                        manager.createTeam(player);
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&a Successfully created a new team!"));
                     } else {
-                        player.sendMessage(HexUtils.colorify("&cYou cannot create a team if you're already in a team!"));
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You cannot create a team if you're already in a team!"));
                     }
                 });
 
@@ -33,49 +29,47 @@ public class TeamCommand {
                 .withArguments(new PlayerArgument("player"))
                 .executesPlayer((player, args) -> {
                     Player target = (Player) args[0];
-                    TeamManager teamManager = UniqueTeams.plugin.getManager();
 
                     if (player == target) {
-                        player.sendMessage(HexUtils.colorify("&cYou cannot invite yourself to your own team!"));
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You cannot invite yourself to your own team!"));
                         return;
                     }
 
-                    if (!teamManager.isInTeam(player)) {
-                        teamManager.createTeam(player);
-
-                        Team team = teamManager.getTeam(player);
-
+                    if (manager.isInTeam(player)) {
+                        Team team = manager.getTeam(player);
                         Player owner = Bukkit.getPlayer(team.getOwner());
 
-                        if (owner == null) return;
-
-                        player.sendMessage(HexUtils.colorify("&aCreated a team!"));
-                        player.sendMessage(HexUtils.colorify("&6Sent a team invite to " + target.getName() + "!"));
-                        target.sendMessage(HexUtils.colorify("&6You've been invited to join " + owner.getName() + "'s team! /team accept " + owner.getName()));
-                        teamManager.invitePlayer(player, target.getUniqueId());
-                    } else {
-                        Team team = teamManager.getTeam(player);
-                        Player owner = Bukkit.getPlayer(team.getOwner());
-
-                        if (owner == null) return;
-
-                        if (teamManager.isInvited(owner, target.getUniqueId())) {
-                            player.sendMessage(HexUtils.colorify("&cYou've already invited this player to the party!"));
+                        if (owner == null) {
+                            System.out.println("Error: The owner cannot be found for team " + team);
                             return;
                         }
 
-                        if (teamManager.isInTeam(target)) {
-                            player.sendMessage(HexUtils.colorify("&cThis player is already in your party!"));
+                        if (team.getMembers().contains(target.getUniqueId())) {
+                            player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c That player is already in your team!"));
+                            return;
+                        }
+
+                        if (manager.isInvited(owner, target.getUniqueId())) {
+                            player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You've already invited this player to the team!"));
+                            return;
+                        }
+
+                        if (team.isInTeam(target)) {
+                            player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c This player is already in your team!"));
                             return;
                         }
 
                         if (team.getMembers().size() == 3) {
-                            player.sendMessage(HexUtils.colorify("&cYou cannot have more than 3 members in your team!"));
+                            player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You cannot have more than 3 members in your team!"));
                             return;
                         }
-                        player.sendMessage(HexUtils.colorify("&6Sent a team invite to " + target.getName() + "!"));
-                        target.sendMessage(HexUtils.colorify("&6You've been invited to join " + owner.getName() + "'s team! /team accept " + owner.getName()));
-                        teamManager.invitePlayer(player, target.getUniqueId());
+
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&f Sent a team invite to&6 " + target.getName() + "&f!"));
+                        target.sendMessage(HexUtils.colorify("&6&lTEAM &8»&f You've been invited to join&6 " + owner.getName() + "'s&f team!&a /team accept " + owner.getName()));
+
+                        manager.invitePlayer(owner, target.getUniqueId());
+                    } else {
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You don't own a team! /team create"));
                     }
                 });
 
@@ -83,80 +77,119 @@ public class TeamCommand {
                 .withArguments(new PlayerArgument("players"))
                 .executesPlayer((player, args) -> {
                     Player owner = (Player) args[0];
-                    TeamManager teamManager = UniqueTeams.plugin.getManager();
 
-                    if (teamManager.isInTeam(player)) {
-                        player.sendMessage(HexUtils.colorify("&cYou're already in a team!"));
+                    if (manager.isInTeam(player)) {
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You're already in a team!"));
                         return;
                     }
 
-                    if (owner == null) return;
+                    if (owner == null) {
+                        System.out.println("Error: The owner cannot be found, name:" + player.getName());
+                        return;
+                    }
 
-                    if (teamManager.isInvited(owner, player.getUniqueId())) {
-                        if (teamManager.getTeam(owner).getMembers().size() == 3) {
-                            player.sendMessage(HexUtils.colorify("&cYou cannot have more than 3 members in your team!"));
-                            teamManager.removePlayerInvite(owner, player.getUniqueId());
+                    if (manager.isInvited(owner, player.getUniqueId())) {
+                        Team team = manager.getTeam(owner);
+
+                        if (team == null) {
+                            System.out.println("Error: A team cannot be found for " + player.getName());
                             return;
                         }
 
-                        teamManager.addPlayer(owner, player, "member");
-                        player.sendMessage(HexUtils.colorify("&6Joined " + owner.getName() + "'s team!"));
-                        teamManager.removePlayerInvite(owner, player.getUniqueId());
+                        manager.removePlayerInvite(owner, player.getUniqueId());
 
-                        teamManager.getPlayers().forEach((uuid, team) -> {
+                        manager.addPlayer(owner, player, "default");
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&a Joined&6 " + owner.getName() + "'s&a team!"));
+
+                        team.getMembers().forEach(uuid -> {
                             Player target = Bukkit.getPlayer(uuid);
-
                             if (target == null) return;
-
-                            target.sendMessage(HexUtils.colorify("&6" + player.getName() + " joined the team!"));
+                            target.sendMessage(HexUtils.colorify("&6&lTEAM &8»&6 " + player.getName() + "&a joined the team!"));
                         });
-
                     } else {
-                        player.sendMessage(HexUtils.colorify("&cYou don't have any pending invites from that team!"));
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You don't have any pending invites from that team!"));
                     }
                 });
 
         CommandAPICommand teamLeave = new CommandAPICommand("leave")
                 .executesPlayer((player, args) -> {
-                    Player owner = player.getPlayer();
-                    TeamManager teamManager = UniqueTeams.plugin.getManager();
+                            Team team = manager.getTeam(player);
 
-                    if (teamManager.isInTeam(player)) {
-                        teamManager.removePlayer(owner, player);
-                        player.sendMessage(HexUtils.colorify("&6You left " + owner.getName() + "'s team!"));
+                            if (team == null) {
+                                System.out.println("Error: A team cannot be found for " + player.getName());
+                                return;
+                            }
 
-                        teamManager.getPlayers().forEach((uuid, team) -> {
-                            Player target = Bukkit.getPlayer(uuid);
+                            if (manager.isInTeam(player)) {
 
-                            if (target == null) return;
+                                Player owner = Bukkit.getPlayer(team.getOwner());
 
-                            target.sendMessage(HexUtils.colorify("&6" + player.getName() + " left the team!"));
+                                if (team.getRank(player).equals("owner")) {
+                                    player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You can't leave the team because you're the team owner! You can disband the team instead. /team disband"));
+                                    return;
+                                }
+
+                                manager.removePlayer(owner, player);
+                                team.removeMember(player);
+                                player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You left the team!"));
+
+                                team.getMembers().forEach(uuid -> {
+                                    Player target = Bukkit.getPlayer(uuid);
+                                    if (target == null) return;
+                                    if (team.getMembers().size() == 0) return;
+                                    target.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c " + player.getName() + " left the team!"));
+                                });
+
+                            }
                         });
-                    }
-                });
 
         CommandAPICommand teamList = new CommandAPICommand("list")
                 .executesPlayer((player, args) -> {
-                    TeamManager teamManager = UniqueTeams.plugin.getManager();
-                    Team team = teamManager.getTeam(player);
+                    Team team = manager.getTeam(player);
                     List<String> members = new ArrayList<>();
 
-                    if (team == null) return;
+                    if (team == null) {
+                        System.out.println("Error: A team cannot be found for " + player.getName());
+                        return;
+                    }
 
                     for (UUID uuid : team.getMembers()) {
                         Player member = Bukkit.getPlayer(uuid);
-
                         if (member == null) return;
-
                         members.add(member.getName());
                     }
 
                     String memberList = members.toString().replaceAll("(^\\[|\\]$)", "");
 
-                    if (teamManager.isInTeam(player)) {
-                        player.sendMessage(HexUtils.colorify("&aTeam members:&e\n" + memberList));
+                    if (manager.isInTeam(player)) {
+                        player.sendMessage(HexUtils.colorify("&6Team members:&f\n" + memberList));
+                    } else {
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&cYou're not in a team!"));
                     }
 
+                });
+
+        CommandAPICommand teamDisband = new CommandAPICommand("disband")
+                .executesPlayer((player, args) -> {
+                    Team team = manager.getTeam(player);
+
+                    if (team == null) {
+                        System.out.println("Error: A team cannot be found for " + player.getName());
+                        return;
+                    }
+
+                    Player owner = Bukkit.getPlayer(team.getOwner());
+
+                    if (owner == null) {
+                        System.out.println("Error: The owner cannot be found, name:" + player.getName());
+                        return;
+                    }
+
+
+                    if (team.getOwner().equals(player.getUniqueId())) {
+                        team.disband();
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&a You've disbanded your team!"));
+                    }
                 });
 
         new CommandAPICommand("team")
@@ -164,6 +197,7 @@ public class TeamCommand {
                 .withSubcommand(teamInvite)
                 .withSubcommand(teamLeave)
                 .withSubcommand(teamList)
+                .withSubcommand(teamDisband)
                 .withSubcommand(teamAccept).register();
     }
 }

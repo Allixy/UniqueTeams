@@ -68,6 +68,13 @@ public class TeamManager {
 
     }
 
+    public void disband(Player owner) {
+        if (teams.containsKey(owner.getName())) {
+            teams.remove(owner.getName());
+            players.remove(owner.getUniqueId());
+        }
+    }
+
     public void removePlayerInvite(Player owner, UUID uuid) {
         Team team = getTeam(owner);
 

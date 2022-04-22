@@ -1,5 +1,8 @@
 package ga.uniquecoding.uniqueteams;
 
+import ga.uniquecoding.uniqueteams.managers.TeamManager;
+import ga.uniquecoding.uniqueteams.utils.HexUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -29,6 +32,25 @@ public class Team {
             if (members.get(uuid).equals("owner")) return uuid;
         }
         return null;
+    }
+
+    public void disband() {
+        TeamManager manager = UniqueTeams.plugin.getManager();
+        Player owner = Bukkit.getPlayer(getOwner());
+
+        if (owner == null) return;
+
+        manager.getTeams().remove(owner.getName());
+
+        for (UUID uuid : getMembers()) {
+            Player target = Bukkit.getPlayer(uuid);
+            if (target == null) return;
+
+            target.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c The team has been disbanded!"));
+            manager.getPlayers().remove(uuid);
+        }
+
+        members.clear();
     }
 
     public void addMember(Player player, String rank) {
