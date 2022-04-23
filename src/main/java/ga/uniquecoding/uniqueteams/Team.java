@@ -34,6 +34,16 @@ public class Team {
         return null;
     }
 
+    public void setRank(Player player, String rank) {
+        if (rank.equals("owner")) {
+            UUID uuid = getOwner();
+            members.replace(uuid, "owner", "default");
+            members.replace(player.getUniqueId(), members.get(player.getUniqueId()), "owner");
+        } else {
+            members.replace(player.getUniqueId(), members.get(player.getUniqueId()), rank);
+        }
+    }
+
     public void disband() {
         TeamManager manager = UniqueTeams.plugin.getManager();
         Player owner = Bukkit.getPlayer(getOwner());

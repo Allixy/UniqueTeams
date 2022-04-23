@@ -64,10 +64,14 @@ public class TeamCommand {
                             return;
                         }
 
-                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&f Sent a team invite to&6 " + target.getName() + "&f!"));
-                        target.sendMessage(HexUtils.colorify("&6&lTEAM &8»&f You've been invited to join&6 " + owner.getName() + "'s&f team!&a /team accept " + owner.getName()));
+                        if (player == owner) {
+                            player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&f Sent a team invite to&6 " + target.getName() + "&f!"));
+                            target.sendMessage(HexUtils.colorify("&6&lTEAM &8»&f You've been invited to join&6 " + owner.getName() + "'s&f team!&a /team accept " + owner.getName()));
 
-                        manager.invitePlayer(owner, target.getUniqueId());
+                            manager.invitePlayer(owner, target.getUniqueId());
+                        } else {
+                            player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c Only the owner can invite players to the team!"));
+                        }
                     } else {
                         player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You don't own a team! /team create"));
                     }
@@ -104,7 +108,7 @@ public class TeamCommand {
                         team.getMembers().forEach(uuid -> {
                             Player target = Bukkit.getPlayer(uuid);
                             if (target == null) return;
-                            target.sendMessage(HexUtils.colorify("&6&lTEAM &8»&6 " + player.getName() + "&a joined the team!"));
+                            target.sendMessage(HexUtils.colorify("&6&lTEAM &8»&6 " + player.getName() + "&f joined the team!"));
                         });
                     } else {
                         player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You don't have any pending invites from that team!"));
@@ -159,10 +163,15 @@ public class TeamCommand {
                         members.add(member.getName());
                     }
 
+                    Player owner = Bukkit.getPlayer(team.getOwner());
+                    if (owner == null) return;
+
+                    members.remove(owner.getName());
+
                     String memberList = members.toString().replaceAll("(^\\[|\\]$)", "");
 
                     if (manager.isInTeam(player)) {
-                        player.sendMessage(HexUtils.colorify("&6Team members:&f\n" + memberList));
+                        player.sendMessage(HexUtils.colorify("&6Team members:\n" + "&eOwner:\n" + "&f" + owner.getName() + "\n" + "&eDefault:\n" + "&f" + memberList));
                     } else {
                         player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&cYou're not in a team!"));
                     }
@@ -192,12 +201,76 @@ public class TeamCommand {
                     }
                 });
 
+        CommandAPICommand teamTransfer = new CommandAPICommand("transfer")
+                .withArguments(new PlayerArgument("player"))
+                .executesPlayer((player, args) -> {
+                    if (manager.isInTeam(player)) {
+                        Team team = manager.getTeam(player);
+                        Player newOwner = (Player) args[0];
+                        if (team.getOwner() == player.getUniqueId()) {
+                            if (manager.isInTeam(newOwner)) {
+                                if (newOwner == player) {
+                                    player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You're already the owner of the team!"));
+                                }
+                                team.setRank(newOwner, "owner");
+                                player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&a You transferred your ownership to&6 " + newOwner.getName()));
+
+                                team.getMembers().forEach(uuid -> {
+                                    Player target = Bukkit.getPlayer(uuid);
+                                    if (target == null) return;
+                                    target.sendMessage(HexUtils.colorify("&6&lTEAM &8»&6 " + newOwner.getName() + " &fis the new team owner!"));
+                                });
+                            } else {
+                                player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c That player is not in your team!"));
+                            }
+                        } else {
+                            player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c Only the owner can transfer the ownership."));
+                        }
+                    } else {
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You don't own a team! /team create"));
+                    }
+                });
+
+        CommandAPICommand teamKick = new CommandAPICommand("kick")
+                .withArguments(new PlayerArgument("player"))
+                .executesPlayer((player, args) -> {
+                    if (manager.isInTeam(player)) {
+                        Team team = manager.getTeam(player);
+                        Player kickTarget = (Player) args[0];
+                        if (team.getOwner() == player.getUniqueId()) {
+                            if (manager.isInTeam(kickTarget)) {
+                                if (kickTarget == player) {
+                                    player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You cannot kick yourself from the team!"));
+                                }
+                                manager.removePlayer(player, kickTarget);
+                                player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&6 " + kickTarget.getName() + "&a has been successfully kicked from your team!"));
+
+                                team.getMembers().forEach(uuid -> {
+                                    Player target = Bukkit.getPlayer(uuid);
+                                    if (target == null) return;
+                                    target.sendMessage(HexUtils.colorify("&6&lTEAM &8»&6 " + kickTarget.getName() + " &fhas been kicked from the team!"));
+                                });
+
+                                kickTarget.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You've been kicked from " + player.getName() + "'s team!"));
+                            } else {
+                                player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c That player is not in your team!"));
+                            }
+                        } else {
+                            player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c Only the owner can kick players from the team."));
+                        }
+                    } else {
+                        player.sendMessage(HexUtils.colorify("&6&lTEAM &8»&c You don't own a team! /team create"));
+                    }
+                });
+
         new CommandAPICommand("team")
                 .withSubcommand(teamCreate)
                 .withSubcommand(teamInvite)
                 .withSubcommand(teamLeave)
                 .withSubcommand(teamList)
                 .withSubcommand(teamDisband)
+                .withSubcommand(teamTransfer)
+                .withSubcommand(teamKick)
                 .withSubcommand(teamAccept).register();
     }
 }
